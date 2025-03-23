@@ -11,6 +11,12 @@ public class Action extends NodeValue {
     protected ArrayList<Value> values;
     protected final ArrayList<Parameter> parameters;
 
+    protected boolean isNot = false;
+    protected boolean not = false;
+
+    protected boolean isSelected = false;
+    protected boolean selected = false;
+
     public Action(String type, ArrayList<Parameter> parameters) {
         this.type = type;
         this.parameters = parameters;
@@ -18,6 +24,10 @@ public class Action extends NodeValue {
 
     public ArrayList<Value> getValues() {
         return this.values;
+    }
+
+    public ArrayList<Parameter> getParameters() {
+        return this.parameters;
     }
 
     public String toString() {

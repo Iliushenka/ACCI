@@ -1,0 +1,11 @@
+event(rejoin) {
+    `variable` = 1 + 1;
+    var.assign(	values=[`variable`, 2 + 2 * 2]);
+    player.send();
+
+    if (player.nameEqual(texts=["Iliushenka"])) {
+    	if (player.nameEqual(texts=["NoIliushenka"])) {
+    		player.send();
+    	}
+    }
+}

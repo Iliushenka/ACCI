@@ -13,6 +13,7 @@ package ru.iliushenka.acci.parser.common;
 public class Parameter extends NodeValue {
 
     private final String name;
+    private boolean used = false;
 
     private final int size;
     private final String typeValue;
@@ -24,4 +25,23 @@ public class Parameter extends NodeValue {
         this.typeValue = typeValue;
     }
 
+    public void setUsed() {
+        this.used = true;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public boolean isUsed() {
+        return used;
+    }
+
+    public int getSize() {
+        return size;
+    }
+
+    public String getTypeValue() {
+        return typeValue;
+    }
 }

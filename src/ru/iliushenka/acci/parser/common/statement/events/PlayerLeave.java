@@ -6,5 +6,6 @@ public class PlayerLeave extends EventStatement {
 
     public PlayerLeave() {
         this.type = "PLAYER_LEAVE";
+        this.cancellable = false;
     }
 }

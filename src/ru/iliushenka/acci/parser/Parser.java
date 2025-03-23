@@ -1,12 +1,12 @@
 package ru.iliushenka.acci.parser;
 
-import ru.iliushenka.acci.parser.common.NodeValue;
-import ru.iliushenka.acci.parser.common.Value;
-import ru.iliushenka.acci.parser.common.ValueParameter;
-import ru.iliushenka.acci.parser.common.ValueParameterArray;
+import ru.iliushenka.acci.parser.common.*;
 import ru.iliushenka.acci.parser.common.expression.Action;
 import ru.iliushenka.acci.parser.common.expression.ExpressionHandler;
+import ru.iliushenka.acci.parser.common.expression.NullAction;
 import ru.iliushenka.acci.parser.common.expression.actions.SendMessage;
+import ru.iliushenka.acci.parser.common.expression.ifs.ifHandler;
+import ru.iliushenka.acci.parser.common.expression.variables.*;
 import ru.iliushenka.acci.parser.common.statement.EventHandler;
 import ru.iliushenka.acci.parser.common.statement.EventStatement;
 import ru.iliushenka.acci.parser.common.statement.Statement;
@@ -15,7 +15,12 @@ import ru.iliushenka.acci.utility.Token;
 import ru.iliushenka.acci.utility.TokenType;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
+/**
+ * @author iliushenka
+ */
 public class Parser {
 
     private final ArrayList<Token> tokens;
@@ -25,6 +30,10 @@ public class Parser {
 
     private final ArrayList<Statement> statements = new ArrayList<>();
 
+    /**
+     * @author iliushenka
+     * @param tokens Токены
+     */
     public Parser(ArrayList<Token> tokens) {
         this.tokens = tokens;
         this.size = this.tokens.size();
@@ -32,6 +41,10 @@ public class Parser {
         this.curToken = this.get();
     }
 
+    /**
+     * Выполняет парсинг
+     * @return Вернет список Statement
+     */
     public ArrayList<Statement> parse() {
         while (!match(TokenType.EOF)) {
             Statement statement = this.statement();
@@ -93,6 +106,48 @@ public class Parser {
             retNode.setValues(parameters);
             retNode.setOther(this.expression());
             return retNode;
+        } else if (get(0).getType() == TokenType.VARIABLE &&
+                    get(1).getType() == TokenType.ASSIGN) {
+            String var_name = get().getValue();
+            next();
+            next();
+            ArrayList<NodeValue> input = new ArrayList<>(List.of(new Value("VARIABLE", var_name),
+                    new ValueArray(new ArrayList<>(List.of(this.additive()))
+            )));
+            Node retNode = new Node(new Assign(), input);
+            eat(TokenType.SEMICOLON);
+            retNode.setOther(this.expression());
+            return retNode;
+        } else if (get(0).getType() == TokenType.VARIABLE &&
+                    get(0).getValue().equals("if")) {
+            eat(TokenType.VARIABLE);
+            eat(TokenType.OPEN_PARENT);
+            String parent = get().getValue();
+            eat(TokenType.VARIABLE);
+            eat(TokenType.DOT);
+            String name = get().getValue();
+            eat(TokenType.VARIABLE);
+            eat(TokenType.OPEN_PARENT);
+
+            ArrayList<NodeValue> parameters = parameter();
+
+            eat(TokenType.CLOSE_PARENT);
+            eat(TokenType.CLOSE_PARENT);
+
+            Node retNode = new Node(ifHandler.getIf(parent, name));
+            retNode.setValues(parameters);
+
+            eat(TokenType.OPEN_BRACKET);
+
+            ArrayList<NodeValue> values = new ArrayList<>();
+            while (!(match(TokenType.EOF) || match(TokenType.CLOSE_BRACKET))) {
+                values.add(this.expression());
+            }
+            eat(TokenType.CLOSE_BRACKET);
+            values.add(new Node(new NullAction()));
+            retNode.setConstruction(values);
+            retNode.setOther(this.expression());
+            return retNode;
         }
 
         return null;
@@ -120,7 +175,20 @@ public class Parser {
                     values.add(new ValueParameter(name, additive()));
                 }
             } else {
-                values.add(additive());
+                if (match(TokenType.OPEN_SQUARE_BRACKET)) {
+                    next();
+                    ArrayList<NodeValue> array = new ArrayList<>();
+                    while (!((match(TokenType.EOF)) || match(TokenType.CLOSE_SQUARE_BRACKET))) {
+                        array.add(additive());
+                        if (!match(TokenType.CLOSE_SQUARE_BRACKET)) {
+                            eat(TokenType.COMMA);
+                        }
+                    }
+                    values.add(new ValueArray(array));
+                    eat(TokenType.CLOSE_SQUARE_BRACKET);
+                } else {
+                    values.add(additive());
+                }
             }
             if (!match(TokenType.CLOSE_PARENT)) {
                 eat(TokenType.COMMA);
@@ -131,12 +199,55 @@ public class Parser {
 
     // + и -
     private NodeValue additive() {
-        return multiply();
+        NodeValue value = this.multiply();
+        while (match(TokenType.PLUS) || match(TokenType.MINUS)) {
+            TokenType action = curToken.getType();
+            next();
+            ArrayList<NodeValue> values = new ArrayList<>();
+            values.add(value);
+            values.add(this.multiply());
+            ArrayList<NodeValue> input = new ArrayList<>(List.of(new ValueArray(values)));
+            if (action == TokenType.PLUS) {
+                value = new Node(new Plus(), input);
+            } else {
+                value = new Node(new Minus(), input);
+            }
+        }
+        return value;
     }
 
     // * и /
     private NodeValue multiply() {
-        return primary();
+        NodeValue value = this.unary();
+        while (match(TokenType.MULTIPLY) || match(TokenType.DIVISION)) {
+            TokenType action = curToken.getType();
+            next();
+            ArrayList<NodeValue> values = new ArrayList<>();
+            values.add(value);
+            values.add(this.unary());
+            ArrayList<NodeValue> input = new ArrayList<>(List.of(new ValueArray(values)));
+            if (action == TokenType.MULTIPLY) {
+                value = new Node(new Multiply(), input);
+            } else {
+                value = new Node(new Division(), input);
+            }
+        }
+        return value;
+    }
+
+    // Обработка отрицательного значения
+    private NodeValue unary() {
+        if (match(TokenType.MINUS)) {
+            next();
+            ArrayList<NodeValue> values = new ArrayList<>();
+
+            values.add(new Value("NUMBER", "0"));
+            values.add(this.primary());
+            ArrayList<NodeValue> input = new ArrayList<>(List.of(new ValueArray(values)));
+            return new Node(new Minus(), input);
+        } else {
+            return primary();
+        }
     }
 
     // Получение значения

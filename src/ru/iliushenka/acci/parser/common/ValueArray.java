@@ -2,17 +2,12 @@ package ru.iliushenka.acci.parser.common;
 
 import java.util.ArrayList;
 
-public class ValueParameterArray extends NodeValue {
+public class ValueArray extends NodeValue {
 
     private final ArrayList<NodeValue> values;
 
-    public ValueParameterArray(String name, ArrayList<NodeValue> values) {
-        this.type = name;
+    public ValueArray(ArrayList<NodeValue> values) {
         this.values = values;
-    }
-
-    public int getLength() {
-        return this.values.size();
     }
 
     public ArrayList<NodeValue> getValues() {
@@ -20,7 +15,7 @@ public class ValueParameterArray extends NodeValue {
     }
 
     public String toString() {
-        return "ArrayParameter{" + this.type + ", " + this.values.toString() + "}";
+        return "Values(" + this.values + ")";
     }
 
     public void replaceValue(int index, NodeValue nodeValue) {

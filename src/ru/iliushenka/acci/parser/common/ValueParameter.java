@@ -2,7 +2,7 @@ package ru.iliushenka.acci.parser.common;
 
 public class ValueParameter extends NodeValue {
 
-    private final NodeValue value;
+    private NodeValue value;
 
     public ValueParameter(String name, NodeValue value) {
         this.type = name;
@@ -11,6 +11,10 @@ public class ValueParameter extends NodeValue {
 
     public NodeValue getValue() {
         return this.value;
+    }
+
+    public void setValue(NodeValue nodeValue) {
+        this.value = nodeValue;
     }
 
     public String toString() {

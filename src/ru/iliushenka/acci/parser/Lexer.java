@@ -38,11 +38,29 @@ public class Lexer {
                 tokenizeStringComponent();
             } else if (temp == '"') {
                 tokenizeString();
+            } else if (temp == '`') {
+                tokenizeVariableEx();
             } else {
                 tokenizeSymbol();
             }
         }
         return this.tokens;
+    }
+
+    private void tokenizeVariableEx() {
+        next();
+        StringBuilder stringBuilder = new StringBuilder();
+        while (!(temp == '\0' || temp == '`')) {
+            stringBuilder.append(temp);
+            next();
+        }
+        if (temp == '`') {
+            addToken(TokenType.VARIABLE, stringBuilder.toString());
+            next();
+        } else {
+            System.out.println("Не была закрыта перменная");
+            System.exit(-1);
+        }
     }
 
     private void tokenizeStringComponent() {

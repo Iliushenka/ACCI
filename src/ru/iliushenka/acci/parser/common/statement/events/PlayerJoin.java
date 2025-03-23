@@ -6,5 +6,6 @@ public class PlayerJoin extends EventStatement {
 
     public PlayerJoin() {
         this.type = "PLAYER_JOIN";
+        this.cancellable = false;
     }
 }
