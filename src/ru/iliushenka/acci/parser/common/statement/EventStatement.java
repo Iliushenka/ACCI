@@ -12,7 +12,9 @@ package ru.iliushenka.acci.parser.common.statement;
 
 import ru.iliushenka.acci.parser.common.*;
 import ru.iliushenka.acci.parser.common.expression.Action;
+import ru.iliushenka.acci.utility.Manager;
 import ru.iliushenka.acci.utility.Node;
+import ru.iliushenka.acci.utility.TokenType;
 
 import java.util.ArrayList;
 
@@ -21,10 +23,11 @@ public class EventStatement extends Statement {
     protected boolean cancellable = false;
 
     public void execute() {
+        System.out.println(this.type);
         ArrayList<NodeValue> flatten = toFlatten();
-        for (NodeValue node : flatten)
-            System.out.println(node);
-        System.out.println();
+//        for (NodeValue node : flatten)
+//            System.out.println(node);
+//        System.out.println();
         boolean flag_construction;
         for (NodeValue nodeValue : flatten) {
             Node node = (Node) nodeValue;
@@ -34,7 +37,7 @@ public class EventStatement extends Statement {
 
             ArrayList<NodeValue> values = node.getValues();
 
-            ArrayList<NodeValue> result = new ArrayList<>();
+            ArrayList<OutputValue> result = new ArrayList<>();
 
             flag_construction = true;
             for (int index_parameter = 0; index_parameter < parameters.size(); index_parameter++) {
@@ -46,7 +49,7 @@ public class EventStatement extends Statement {
                         if (parameter.getName().equals(value.getType())) {
                             if (parameter.getSize() == 1) {
                                 if (checkType(value, parameter)) {
-                                    result.add(value);
+                                    result.add(new OutputValue(parameter.getAction(), ((ValueParameter) value).getValue(), parameter.getTag()));
                                     values.remove(index_argument);
                                     break;
                                 }
@@ -59,7 +62,7 @@ public class EventStatement extends Statement {
                         if (parameter.getName().equals(value.getType())) {
                             if (parameter.getSize() >= ((ValueParameterArray) value).getLength()) {
                                 if (checkArray((ValueParameterArray) value, parameter)) {
-                                    result.add(value);
+                                    result.add(new OutputValue(parameter.getAction(), ((ValueParameterArray) value).getValues(), parameter.getTag()));
                                     values.remove(index_argument);
                                     break;
                                 }
@@ -71,7 +74,7 @@ public class EventStatement extends Statement {
                         if (flag_construction) {
                             if (parameter.getSize() == 1) {
                                 if (checkType(value, parameter)) {
-                                    result.add(value);
+                                    result.add(new OutputValue(parameter.getAction(), value, parameter.getTag()));
                                     values.remove(index_argument);
                                     break;
                                 }
@@ -86,7 +89,7 @@ public class EventStatement extends Statement {
                         if (flag_construction) {
                             if (parameter.getSize() >= ((ValueArray) value).getValues().size()) {
                                 if (checkArray((ValueArray) value, parameter)) {
-                                    result.add(value);
+                                    result.add(new OutputValue(parameter.getAction(), ((ValueArray) value).getValues(), parameter.getTag()));
                                     values.remove(index_argument);
                                     break;
                                 }
@@ -100,11 +103,13 @@ public class EventStatement extends Statement {
                     }
                 }
             }
-            System.out.println(action.getType());
-            for (NodeValue value : result) {
-                System.out.println(value);
+            if (!action.getType().equals("NULL")) {
+                System.out.println("    " + action.getType() + ", not=" + action.not + ", miniSelect=" + action.selected);
+                for (OutputValue value : result) {
+                    System.out.println("        " + value);
+                }
+                System.out.println();
             }
-            System.out.println();
         }
     }
 
@@ -138,6 +143,19 @@ public class EventStatement extends Statement {
             valueType = ((ValueParameter) value).getValue().getType();
         } else {
             valueType = value.getType();
+        }
+
+        if (value.getType().equals("VARIABLE") && value instanceof Value) {
+            if (Manager.variablesSaved.contains(((Value) value).getValue())) {
+                ((Value) value).setSave(true);
+            }
+        }
+
+        if (value instanceof ValueParameter && ((ValueParameter) value).getValue().getType().equals("VARIABLE")) {
+            Value updateValue = (Value)((ValueParameter) value).getValue();
+            if (Manager.variablesSaved.contains(updateValue.getValue())) {
+                updateValue.setSave(true);
+            }
         }
 
         if (parameterType.equals(valueType)) {

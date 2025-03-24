@@ -15,4 +15,8 @@ public class NameEquals extends Action {
     public NameEquals() {
         super(type, parameters);
     }
+
+    public static ArrayList<Parameter> extend() {
+        return parameters;
+    }
 }

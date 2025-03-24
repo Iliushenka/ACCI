@@ -4,7 +4,7 @@ import ru.iliushenka.acci.parser.common.expression.Action;
 import ru.iliushenka.acci.parser.common.expression.ifs.ifEntity.TypeEquals;
 import ru.iliushenka.acci.parser.common.expression.ifs.ifGame.BlockEquals;
 import ru.iliushenka.acci.parser.common.expression.ifs.ifPlayer.NameEquals;
-import ru.iliushenka.acci.parser.common.expression.ifs.ifVar.ValueEquals;
+import ru.iliushenka.acci.parser.common.expression.ifs.ifVar.*;
 
 public class ifHandler {
 
@@ -15,31 +15,42 @@ public class ifHandler {
      * @return Действие в виде объекта
      */
     public static Action getIf(String parent, String name) {
+        Action ifAction = null;
         switch (parent) {
             case "player":
-                return ifPlayer(name);
+                ifAction = ifPlayer(name);
+                break;
             case "entity":
-                return ifEntity(name);
+                ifAction = ifEntity(name);
+                break;
             case "game":
-                return ifGame(name);
+                ifAction = ifGame(name);
+                break;
             case "var":
-                return ifVar(name);
+                ifAction = ifVar(name);
+                break;
+            default:
+                System.out.println("Такого блока для условия нет!");
+                System.exit(-1);
         }
-        System.out.println("Такого блока для условия нет!");
-        System.exit(-1);
-
-        return null;
+        // Устанавливаем, то что можно ставить НЕ
+        ifAction.isNot = true;
+        return ifAction;
     }
 
     private static Action ifPlayer(String name) {
+        Action ifAction = null;
         switch (name) {
             case "nameEqual":
-                return new NameEquals();
+                ifAction = new NameEquals();
+                break;
+            default:
+                System.out.println("Такого условия у игрока нет!");
+                System.exit(-1);
         }
-        System.out.println("Такого условия у игрока нет!");
-        System.exit(-1);
-
-        return null;
+        // Устанавливаем, то что можем сделать внутр. выборку у блока
+        ifAction.isSelected = true;
+        return ifAction;
     }
 
     private static Action ifEntity(String name) {
@@ -66,8 +77,26 @@ public class ifHandler {
 
     private static Action ifVar(String name) {
         switch (name) {
-            case "valueEqual":
+            case "equal":
                 return new ValueEquals();
+            case "notEquals":
+                return new ValueNotEquals();
+            case "textEquals":
+                return new TextEquals();
+            case "startWith":
+                return new TextStartWith();
+            case "endWith":
+                return new TextEndWith();
+            case "exist":
+                return new VariableExists();
+            case "textContains":
+                return new TextContains();
+            case "compareNumber":
+                return new CompareNumbers();
+            case "compareInterval":
+                return new CompareInterval();
+            case "inRegion":
+                return new LocationInRegion();
         }
         System.out.println("Такого условия у переменной нет!");
         System.exit(-1);

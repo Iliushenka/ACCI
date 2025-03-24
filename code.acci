@@ -1,11 +1,15 @@
 event(rejoin) {
-    `variable` = 1 + 1;
-    var.assign(	values=[`variable`, 2 + 2 * 2]);
-    player.send();
+	save `variable`, `hello`;
 
-    if (player.nameEqual(texts=["Iliushenka"])) {
-    	if (player.nameEqual(texts=["NoIliushenka"])) {
-    		player.send();
-    	}
+    `variable` = 1 + 1;
+    var.assign(values=[`variable`, 2 + 2 * 2]);
+    if (not var.textEquals(value=`hello`, switch1=1, switch2=3, values=["Hello"])) {
+    	player.send<all>();
     }
+
+	select.all<not>();
+}
+
+event(join) {
+	player.send<all>(["CREATOR IS ILIUSHENKA LOL"]);
 }

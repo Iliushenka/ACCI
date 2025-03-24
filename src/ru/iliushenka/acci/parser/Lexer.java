@@ -179,6 +179,12 @@ public class Lexer {
             case '=':
                 tokenType = TokenType.ASSIGN;
                 break;
+            case '<':
+                tokenType = TokenType.OPEN_BRACE;
+                break;
+            case '>':
+                tokenType = TokenType.CLOSE_BRACE;
+                break;
         }
         addToken(tokenType);
         next();

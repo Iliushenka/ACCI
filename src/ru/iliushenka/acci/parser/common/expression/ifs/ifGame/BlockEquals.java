@@ -16,4 +16,8 @@ public class BlockEquals extends Action {
     public BlockEquals() {
         super(type, parameters);
     }
+
+    public static ArrayList<Parameter> extend() {
+        return parameters;
+    }
 }

@@ -6,14 +6,14 @@ import ru.iliushenka.acci.parser.common.expression.Action;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ValueEquals extends Action {
+public class ValueNotEquals extends Action {
 
     private static final ArrayList<Parameter> parameters = new ArrayList<>(List.of(
             new Parameter("value", 1, "ALL"),
             new Parameter("values", 27, "ALL")));
-    private static final String type = "VALUE_EQUALS";
+    private static final String type = "VALUE_NOT_EQUALS";
 
-    public ValueEquals() {
+    public ValueNotEquals() {
         super(type, parameters);
     }
 

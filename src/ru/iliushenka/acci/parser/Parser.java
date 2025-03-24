@@ -3,6 +3,7 @@ package ru.iliushenka.acci.parser;
 import ru.iliushenka.acci.parser.common.*;
 import ru.iliushenka.acci.parser.common.expression.Action;
 import ru.iliushenka.acci.parser.common.expression.ExpressionHandler;
+import ru.iliushenka.acci.parser.common.expression.NextBlockAction;
 import ru.iliushenka.acci.parser.common.expression.NullAction;
 import ru.iliushenka.acci.parser.common.expression.actions.SendMessage;
 import ru.iliushenka.acci.parser.common.expression.ifs.ifHandler;
@@ -10,6 +11,7 @@ import ru.iliushenka.acci.parser.common.expression.variables.*;
 import ru.iliushenka.acci.parser.common.statement.EventHandler;
 import ru.iliushenka.acci.parser.common.statement.EventStatement;
 import ru.iliushenka.acci.parser.common.statement.Statement;
+import ru.iliushenka.acci.utility.Manager;
 import ru.iliushenka.acci.utility.Node;
 import ru.iliushenka.acci.utility.Token;
 import ru.iliushenka.acci.utility.TokenType;
@@ -96,13 +98,63 @@ public class Parser {
             eat(TokenType.DOT);
             String actionName = get().getValue();
             eat(TokenType.VARIABLE);
+
+            String selected = null;
+            boolean not = false;
+            if (match(TokenType.OPEN_BRACE)) {
+                eat(TokenType.OPEN_BRACE);
+                if (match(TokenType.VARIABLE) && get().getValue().equals("not")) {
+                    not = true;
+                    eat(TokenType.VARIABLE);
+                } else if (match(TokenType.VARIABLE)) {
+                    selected = get().getValue();
+                    eat(TokenType.VARIABLE);
+                } else {
+                    System.out.println("Вы забыли указать во внутр. выборке кого выбрать");
+                    System.exit(-1);
+                }
+                eat(TokenType.CLOSE_BRACE);
+            }
+            if (match(TokenType.OPEN_BRACE)) {
+                eat(TokenType.OPEN_BRACE);
+                if (match(TokenType.VARIABLE) && get().getValue().equals("not")) {
+                    not = true;
+                    eat(TokenType.VARIABLE);
+                } else if (match(TokenType.VARIABLE)) {
+                    selected = get().getValue();
+                    eat(TokenType.VARIABLE);
+                } else {
+                    System.out.println("Вы забыли указать во внутр. выборке кого выбрать");
+                    System.exit(-1);
+                }
+                eat(TokenType.CLOSE_BRACE);
+            }
+
             eat(TokenType.OPEN_PARENT);
 
             ArrayList<NodeValue> parameters = parameter();
 
             eat(TokenType.CLOSE_PARENT);
             eat(TokenType.SEMICOLON);
-            Node retNode = new Node(ExpressionHandler.getAction(blockName, actionName));
+            Action action = ExpressionHandler.getAction(blockName, actionName);
+            Node retNode = new Node(action);
+            if (action.isNot && not) {
+                action.not = true;
+            } else if (not) {
+                System.out.println("Данному действию нельзя присвоить инверсию");
+                System.exit(-1);
+            }
+            if (action.isSelected && selected != null) {
+                if (MiniSelector.checkSelected(selected)) {
+                    action.selected = selected;
+                } else {
+                    System.out.println("Такой внутр. выборки не существует");
+                    System.exit(-1);
+                }
+            } else if (selected != null){
+                System.out.println("Данному действию нельзя установить внутр. выборку");
+                System.exit(-1);
+            }
             retNode.setValues(parameters);
             retNode.setOther(this.expression());
             return retNode;
@@ -122,11 +174,32 @@ public class Parser {
                     get(0).getValue().equals("if")) {
             eat(TokenType.VARIABLE);
             eat(TokenType.OPEN_PARENT);
+
+            boolean not = false;
+            // Получаем обработку НЕ
+            if (get().getType() == TokenType.VARIABLE && get().getValue().equals("not")) {
+                eat(TokenType.VARIABLE);
+                not = true;
+            }
+
             String parent = get().getValue();
             eat(TokenType.VARIABLE);
             eat(TokenType.DOT);
             String name = get().getValue();
             eat(TokenType.VARIABLE);
+
+            String selected = null;
+            if (match(TokenType.OPEN_BRACE)) {
+                eat(TokenType.OPEN_BRACE);
+                if (match(TokenType.VARIABLE)) {
+                    selected = get().getValue();
+                    eat(TokenType.VARIABLE);
+                } else {
+                    System.out.println("Вы забыли указать во внутр. выборке кого выбрать");
+                    System.exit(-1);
+                }
+                eat(TokenType.CLOSE_BRACE);
+            }
             eat(TokenType.OPEN_PARENT);
 
             ArrayList<NodeValue> parameters = parameter();
@@ -134,8 +207,23 @@ public class Parser {
             eat(TokenType.CLOSE_PARENT);
             eat(TokenType.CLOSE_PARENT);
 
-            Node retNode = new Node(ifHandler.getIf(parent, name));
+            Action action = ifHandler.getIf(parent, name);
+            Node retNode = new Node(action);
             retNode.setValues(parameters);
+            if (action.isNot && not) {
+                action.not = not;
+            }
+            if (action.isSelected && selected != null) {
+                if (MiniSelector.checkSelected(selected)) {
+                    action.selected = selected;
+                } else {
+                    System.out.println("Такой внутр. выборки не существует");
+                    System.exit(-1);
+                }
+            } else if (selected != null){
+                System.out.println("Данному условию нельзя установить внутр. выборку");
+                System.exit(-1);
+            }
 
             eat(TokenType.OPEN_BRACKET);
 
@@ -144,10 +232,28 @@ public class Parser {
                 values.add(this.expression());
             }
             eat(TokenType.CLOSE_BRACKET);
-            values.add(new Node(new NullAction()));
+            values.add(new Node(new NextBlockAction()));
             retNode.setConstruction(values);
             retNode.setOther(this.expression());
             return retNode;
+        } else if (get().getType() == TokenType.VARIABLE && get().getValue().equals("save")) {
+            eat(TokenType.VARIABLE);
+            while (!(match(TokenType.EOF) || match(TokenType.SEMICOLON))) {
+                if (match(TokenType.VARIABLE)) {
+                    Manager.variablesSaved.add(get().getValue());
+                    eat(TokenType.VARIABLE);
+                } else {
+                    System.out.println("Требуется переменная!");
+                    System.exit(-1);
+                }
+                if (!match(TokenType.SEMICOLON)) {
+                    eat(TokenType.COMMA);
+                }
+            }
+            eat(TokenType.SEMICOLON);
+            Node node = new Node(new NullAction());
+            node.setOther(expression());
+            return node;
         }
 
         return null;

@@ -1,19 +1,22 @@
 package ru.iliushenka.acci.parser.common.expression.ifs.ifVar;
 
 import ru.iliushenka.acci.parser.common.Parameter;
+import ru.iliushenka.acci.parser.common.ParameterAction;
 import ru.iliushenka.acci.parser.common.expression.Action;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ValueEquals extends Action {
+public class CompareNumbers extends Action {
 
     private static final ArrayList<Parameter> parameters = new ArrayList<>(List.of(
-            new Parameter("value", 1, "ALL"),
-            new Parameter("values", 27, "ALL")));
-    private static final String type = "VALUE_EQUALS";
+            new Parameter("value1", 1, "ALL"),
+            new Parameter("switch", 1, "NUMBER", 13, ParameterAction.CLICK),
+            new Parameter("value2", 1, "ALL")
+            ));
+    private static final String type = "COMPARE_NUMBER";
 
-    public ValueEquals() {
+    public CompareNumbers() {
         super(type, parameters);
     }
 

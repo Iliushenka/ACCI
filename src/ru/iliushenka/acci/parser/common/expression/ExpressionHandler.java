@@ -1,6 +1,7 @@
 package ru.iliushenka.acci.parser.common.expression;
 
 import ru.iliushenka.acci.parser.common.expression.actions.SendMessage;
+import ru.iliushenka.acci.parser.common.expression.selector.*;
 import ru.iliushenka.acci.parser.common.expression.variables.*;
 
 public class ExpressionHandler {
@@ -12,11 +13,84 @@ public class ExpressionHandler {
                 return playerAction(name);
             case "var":
                 return variableAction(name);
+            case "select":
+                return selectAction(name);
             default:
                 System.out.println("Такого блока не существует");
                 System.exit(-1);
         }
         return null;
+    }
+
+    private static Action selectAction(String name) {
+        Action action = null;
+        switch (name) {
+            case "playerDefault":
+                action = new DefaultPlayer();
+                break;
+            case "entityDefault":
+                action = new DefaultEntity();
+                break;
+            case "randomPlayer":
+                action = new RandomPlayer();
+                break;
+            case "randomMob":
+                action = new RandomMob();
+                break;
+            case "randomEntity":
+                action = new RandomEntity();
+                break;
+            case "all":
+                action = new AllPlayer();
+                break;
+            case "allMob":
+                action = new AllMob();
+                break;
+            case "allEntity":
+                action = new AllEntity();
+                break;
+            case "lastMob":
+                action = new LastSpawnedMob();
+                break;
+            case "randomFilter":
+                action = new RandomlyFilterSelection();
+                break;
+            case "equal":
+                action = new IfVariableValueEqual();
+                break;
+            case "notEqual":
+                action = new IfVariableValueNotEqual();
+                break;
+            case "compareNumber":
+                action = new IfVariableCompareNumber();
+                break;
+            case "compareInterval":
+                action = new IfVariableCompareInterval();
+                break;
+            case "textEqual":
+                action = new IfVariableTextEqual();
+                break;
+            case "textContain":
+                action = new IfVariableTextContain();
+                break;
+            case "exist":
+                action = new IfVariableExist();
+                break;
+            case "inRegion":
+                action = new IfVariableLocationInRegion();
+                break;
+            case "startWith":
+                action = new IfVariableTextStartWith();
+                break;
+            case "endWith":
+                action = new IfVariableTextEndWith();
+                break;
+            default:
+                System.out.println("Такой выборки не существует");
+                System.exit(-1);
+        }
+        action.isNot = true;
+        return action;
     }
 
     // Блок работы со значениями
@@ -41,14 +115,17 @@ public class ExpressionHandler {
 
     // Блок действия игрока
     private static Action playerAction(String name) {
+        Action action = null;
         switch (name) {
             case "send":
-                return new SendMessage();
+                action = new SendMessage();
+                break;
             default:
                 System.out.println("Такого действия не существует");
                 System.exit(-1);
         }
-        return null;
+        action.isSelected = true;
+        return action;
     }
 
 }

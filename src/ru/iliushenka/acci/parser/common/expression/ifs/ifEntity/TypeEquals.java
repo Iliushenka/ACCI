@@ -15,4 +15,8 @@ public class TypeEquals extends Action {
     public TypeEquals() {
         super(type, parameters);
     }
+
+    public static ArrayList<Parameter> extend() {
+        return parameters;
+    }
 }

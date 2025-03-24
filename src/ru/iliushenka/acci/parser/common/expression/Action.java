@@ -11,11 +11,11 @@ public class Action extends NodeValue {
     protected ArrayList<Value> values;
     protected final ArrayList<Parameter> parameters;
 
-    protected boolean isNot = false;
-    protected boolean not = false;
+    public boolean isNot = false;
+    public boolean not = false;
 
-    protected boolean isSelected = false;
-    protected boolean selected = false;
+    public boolean isSelected = false;
+    public String selected = null;
 
     public Action(String type, ArrayList<Parameter> parameters) {
         this.type = type;

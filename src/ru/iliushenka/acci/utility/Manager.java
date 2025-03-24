@@ -6,11 +6,18 @@ import ru.iliushenka.acci.parser.common.statement.EventStatement;
 import ru.iliushenka.acci.parser.common.statement.Statement;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 
 public class Manager {
 
     public static String filename;
     public static int index;
+
+    /**
+     * Тут храняться сохраненные переменные
+     */
+    public static HashSet<String> variablesSaved;
 
     /**
      * Функция, которая начинает компиляцию файла
@@ -22,6 +29,7 @@ public class Manager {
      * @param name Название файла
      */
     public static void setup(String name) {
+        variablesSaved = new HashSet<>();
         filename = name;
         index = 0;
 
