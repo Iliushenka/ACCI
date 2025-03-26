@@ -7,15 +7,15 @@ import ru.iliushenka.acci.parser.common.expression.Action;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NameEquals extends Action {
+public class HasGoldTransaction extends Action {
 
     private static final ArrayList<Parameter> parameters = new ArrayList<>(List.of(
-            new Parameter("texts", 36, "TEXT"),
-            new Parameter("register", 1, "NUMBER", 49, ParameterAction.CLICK)
+            new Parameter("text", 1, "TEXT"),
+            new Parameter("number", 1, "MATH")
     ));
-    private static final String type = "NAME_EQUALS";
+    private static final String type = "HAS_GOLD_TRANSACTION";
 
-    public NameEquals() {
+    public HasGoldTransaction() {
         super(type, parameters);
     }
 

@@ -9,9 +9,9 @@ import java.util.List;
 public class LocationInRegion extends Action {
 
     private static final ArrayList<Parameter> parameters = new ArrayList<>(List.of(
-            new Parameter("pos", 1, "ALL"),
-            new Parameter("pos1", 1, "ALL"),
-            new Parameter("pos2", 1, "ALL")
+            new Parameter("pos", 1, "LOCATION"),
+            new Parameter("pos1", 1, "LOCATION"),
+            new Parameter("pos2", 1, "LOCATION")
             ));
     private static final String type = "LOCATION_IN_REGION";
 

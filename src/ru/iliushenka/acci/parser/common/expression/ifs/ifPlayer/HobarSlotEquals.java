@@ -7,15 +7,14 @@ import ru.iliushenka.acci.parser.common.expression.Action;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NameEquals extends Action {
+public class HobarSlotEquals extends Action {
 
     private static final ArrayList<Parameter> parameters = new ArrayList<>(List.of(
-            new Parameter("texts", 36, "TEXT"),
-            new Parameter("register", 1, "NUMBER", 49, ParameterAction.CLICK)
+            new Parameter("values", 9, "MATH")
     ));
-    private static final String type = "NAME_EQUALS";
+    private static final String type = "HOTBAR_SLOT_EQUALS";
 
-    public NameEquals() {
+    public HobarSlotEquals() {
         super(type, parameters);
     }
 

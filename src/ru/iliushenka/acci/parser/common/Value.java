@@ -23,6 +23,11 @@ public class Value extends NodeValue {
     }
 
     public String toString() {
-        return "Value(" + this.type + ", " + this.value + ", save=" + this.save + ")";
+        String output = "Value(" + this.type + ", " + this.value;
+        if (this.type.equals("VARIABLE")) {
+            output += ", save=" + this.save;
+        }
+        output += ")";
+        return output;
     }
 }

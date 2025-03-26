@@ -23,7 +23,7 @@ public class Parameter extends NodeValue {
     private final int size;
     private final String typeValue;
 
-    private int tag = -1;
+    private int slot = -1;
     private ParameterAction action = ParameterAction.ITEM;
 
     /**
@@ -50,17 +50,17 @@ public class Parameter extends NodeValue {
      * @param name Название параметра
      * @param size Сколько в себя берет максимум чего-то
      * @param typeValue Принимаемый тип, есть модифицированные
-     * @param tag Я предполагаю это место для обозначения слота
+     * @param slot Я предполагаю это место для обозначения слота
      *
      * @author iliushenka
      */
-    public Parameter(String name, int size, String typeValue, int tag) {
+    public Parameter(String name, int size, String typeValue, int slot) {
         this.name = name;
 
         this.size = size;
         this.typeValue = typeValue;
 
-        this.tag = tag;
+        this.slot = slot;
     }
 
     /**
@@ -70,18 +70,18 @@ public class Parameter extends NodeValue {
      * @param name Название параметра
      * @param size Сколько в себя берет максимум чего-то
      * @param typeValue Принимаемый тип, есть модифицированные
-     * @param tag Я предполагаю это место для обозначения слота
+     * @param slot Я предполагаю это место для обозначения слота
      * @param action Короче место под определение предмет или клик
      *
      * @author iliushenka
      */
-    public Parameter(String name, int size, String typeValue, int tag, ParameterAction action) {
+    public Parameter(String name, int size, String typeValue, int slot, ParameterAction action) {
         this.name = name;
 
         this.size = size;
         this.typeValue = typeValue;
 
-        this.tag = tag;
+        this.slot = slot;
         this.action = action;
     }
 
@@ -105,8 +105,8 @@ public class Parameter extends NodeValue {
         return typeValue;
     }
 
-    public int getTag() {
-        return tag;
+    public int getSlot() {
+        return slot;
     }
 
     public ParameterAction getAction() {
